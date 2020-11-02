@@ -30,77 +30,74 @@ namespace WindowsFormsApp1
             if (textBox.Text == "") { return 0; }
             return Convert.ToInt32(textBox.Text);
         }
-        void SerpinskyFractal(int iteration)
+        void KohFractal(int iteration)
         {
-            if (iteration == iter) { return; }
-            for (int i = 0; i < Math.Pow(8, iteration); i++)
+            if (iteration == iter) {
+                foreach (var i in group1.group)
+                {
+                    i.Draw();
+                }
+                return; }
+            for (int i = 0; i < Math.Pow(4, iteration); i++)
             {
-                AddCarpet(group1.group[0]);
+                AddLine(group1.group[0]);
             }
-            foreach (var i in group1.group)
-            {
-                i.DrawSquare();
-            }
-            SerpinskyFractal(iteration + 1);
+            KohFractal(iteration + 1);
         }
-        void AddCarpet(SerpinskyCarpet carpet)
+        void AddLine(KohLine line)
         {
-            SerpinskyCarpet temp1 = new SerpinskyCarpet(carpet.x-2/3.0f*carpet.size, carpet.y-2/3.0f*carpet.size, carpet.size / 3.0f);
-            SerpinskyCarpet temp2 = new SerpinskyCarpet(temp1.x+carpet.size, temp1.y, temp1.size);
-            SerpinskyCarpet temp3 = new SerpinskyCarpet(temp2.x+carpet.size,temp1.y,temp1.size);
-            SerpinskyCarpet temp4 = new SerpinskyCarpet(temp1.x,temp1.y+carpet.size,temp1.size);
-            SerpinskyCarpet temp5 = new SerpinskyCarpet(temp3.x,temp4.y,temp1.size);
-            SerpinskyCarpet temp6 = new SerpinskyCarpet(temp1.x,temp4.y+carpet.size,temp1.size);
-            SerpinskyCarpet temp7 = new SerpinskyCarpet(temp2.x,temp6.y,temp1.size);
-            SerpinskyCarpet temp8 = new SerpinskyCarpet(temp3.x,temp6.y,temp1.size);
+            float alpha = (float)Math.Atan2(line.by - line.ay, line.bx - line.ax);
+            float r = (float)Math.Sqrt((line.bx - line.ax) * (line.bx - line.ax) + (line.by - line.ay) * (line.by - line.ay));
+            KohLine temp1 = new KohLine(line.ax,line.ay, (float)(line.ax + r * Math.Cos(alpha) / 3.0f), (float)(line.ay + r * Math.Sin(alpha) / 3.0f));
+            KohLine temp2 = new KohLine(temp1.bx , temp1.by, (float)(temp1.bx + r * Math.Cos(alpha - Math.PI / 3.0f) / 3.0f), (float)(temp1.by + r * Math.Sin(alpha - Math.PI / 3.0f) / 3.0f));
+            KohLine temp3 = new KohLine(temp2.bx, temp2.by, (float)(line.ax + 2*r * Math.Cos(alpha) / 3.0f), (float)(line.ay + 2* r * Math.Sin(alpha) / 3.0f));
+            KohLine temp4 = new KohLine(temp3.bx, temp3.by,line.bx,line.by);
             group1 += temp1;
             group1 += temp2;
             group1 += temp3;
             group1 += temp4;
-            group1 += temp5;
-            group1 += temp6;
-            group1 += temp7;
-            group1 += temp8;
-            group1 -= carpet;
+            group1 -= line;
         }
-        class SerpinskyCarpet
+        class KohLine
         {
-            public float x { get; } = 0;
-            public float y { get; } = 0;
-            public float size { get; } = 0;
-            public SerpinskyCarpet(float x, float y, float size)
+            public float ax { get; } = 0;
+            public float ay { get; } = 0;
+            public float bx { get; } = 0;
+            public float by { get; } = 0;
+            public KohLine(float ax, float ay, float bx,float by)
             {
-                this.x = x;
-                this.y = y;
-                this.size = size;
+                this.ax = ax;
+                this.ay = ay;
+                this.bx = bx;
+                this.by = by;
             }
-            public void DrawSquare()
+            public void Draw()
             {
-                graph.DrawRectangle(pen, x, y, size, size);
+                graph.DrawLine(pen, ax, ay, bx, by);
                 mainPictureBox.Image = bmp;
             }
         }
         class SerpinskyCarpetGroup
         {
-            public SerpinskyCarpet[] group;
+            public KohLine[] group;
             public SerpinskyCarpetGroup()
             {
-                group = new SerpinskyCarpet[0];
+                group = new KohLine[0];
             }
-            public static SerpinskyCarpetGroup operator +(SerpinskyCarpetGroup gr, SerpinskyCarpet rect)
+            public static SerpinskyCarpetGroup operator +(SerpinskyCarpetGroup gr, KohLine rect)
             {
                 Array.Resize(ref gr.group, gr.group.Length + 1);
                 gr.group[gr.group.Length - 1] = rect;
                 return gr;
             }
-            public static SerpinskyCarpetGroup operator -(SerpinskyCarpetGroup gr, SerpinskyCarpet rect)
+            public static SerpinskyCarpetGroup operator -(SerpinskyCarpetGroup gr, KohLine rect)
             {
                 bool isFind = false;
                 for (int i = 0; i < gr.group.Length; i++)
                 {
                     if (isFind)
                     {
-                        SerpinskyCarpet temp = gr.group[i];
+                        KohLine temp = gr.group[i];
                         gr.group[i] = gr.group[i - 1];
                         gr.group[i - 1] = temp;
                     }
@@ -120,22 +117,18 @@ namespace WindowsFormsApp1
         private void button1_Click(object sender, EventArgs e)
         {
             graph.Clear(Color.Transparent);
-            SerpinskyCarpet carpet1 = new SerpinskyCarpet(10, 40, 700);
-            carpet1.DrawSquare();
-            SerpinskyCarpet carpet2 = new SerpinskyCarpet(carpet1.x+carpet1.size/3.0f, carpet1.y+carpet1.size / 3.0f, carpet1.size/3.0f);
-            carpet2.DrawSquare();
+            KohLine line1 = new KohLine(10, 500, 1300,500);
             iter = TextBoxToInt(mainTextBox);
-            foreach (SerpinskyCarpet i in group1.group)
+            foreach (KohLine i in group1.group)
             {
                 group1 -= i;
             }
-            foreach (SerpinskyCarpet i in group1.group)
+            foreach (KohLine i in group1.group)
             {
                 group1 -= i;
             }
-            group1 += carpet2;
-            group1.group[0].DrawSquare();
-            SerpinskyFractal(0);
+            group1 += line1;
+            KohFractal(0);
         }
     }
 }
