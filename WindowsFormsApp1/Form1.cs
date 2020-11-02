@@ -16,7 +16,7 @@ namespace WindowsFormsApp1
         static Bitmap bmp = new Bitmap(10000, 10000);
         static Graphics graph = Graphics.FromImage(bmp);
         static Pen pen = new Pen(Color.Black);
-        static SerpinskyTriangleGroup group1 = new SerpinskyTriangleGroup();
+        static SerpinskyCarpetGroup group1 = new SerpinskyCarpetGroup();
         static TextBox mainTextBox = new TextBox();
         static int iter;
         public Form1()
@@ -33,66 +33,74 @@ namespace WindowsFormsApp1
         void SerpinskyFractal(int iteration)
         {
             if (iteration == iter) { return; }
-            for (int i = 0; i < Math.Pow(3, iteration); i++)
+            for (int i = 0; i < Math.Pow(8, iteration); i++)
             {
-                AddRectangle(group1.group[0]);
+                AddCarpet(group1.group[0]);
             }
             foreach (var i in group1.group)
             {
-                i.DrawTriangle();
+                i.DrawSquare();
             }
             SerpinskyFractal(iteration + 1);
         }
-        void AddRectangle(SerpinskyTriangle triangle)
+        void AddCarpet(SerpinskyCarpet carpet)
         {
-            SerpinskyTriangle temp1 = new SerpinskyTriangle(triangle.x, triangle.y, triangle.size / 2.0f);
-            SerpinskyTriangle temp2 = new SerpinskyTriangle(triangle.x + triangle.size/2.0f, triangle.y, triangle.size / 2.0f);
-            SerpinskyTriangle temp3 = new SerpinskyTriangle(triangle.x + triangle.size / 4.0f, (float)(triangle.y - triangle.size / 4.0f*Math.Sqrt(3)), triangle.size / 2.0f);
+            SerpinskyCarpet temp1 = new SerpinskyCarpet(carpet.x-2/3.0f*carpet.size, carpet.y-2/3.0f*carpet.size, carpet.size / 3.0f);
+            SerpinskyCarpet temp2 = new SerpinskyCarpet(temp1.x+carpet.size, temp1.y, temp1.size);
+            SerpinskyCarpet temp3 = new SerpinskyCarpet(temp2.x+carpet.size,temp1.y,temp1.size);
+            SerpinskyCarpet temp4 = new SerpinskyCarpet(temp1.x,temp1.y+carpet.size,temp1.size);
+            SerpinskyCarpet temp5 = new SerpinskyCarpet(temp3.x,temp4.y,temp1.size);
+            SerpinskyCarpet temp6 = new SerpinskyCarpet(temp1.x,temp4.y+carpet.size,temp1.size);
+            SerpinskyCarpet temp7 = new SerpinskyCarpet(temp2.x,temp6.y,temp1.size);
+            SerpinskyCarpet temp8 = new SerpinskyCarpet(temp3.x,temp6.y,temp1.size);
             group1 += temp1;
             group1 += temp2;
             group1 += temp3;
-            group1 -= triangle;
+            group1 += temp4;
+            group1 += temp5;
+            group1 += temp6;
+            group1 += temp7;
+            group1 += temp8;
+            group1 -= carpet;
         }
-        class SerpinskyTriangle
+        class SerpinskyCarpet
         {
             public float x { get; } = 0;
             public float y { get; } = 0;
             public float size { get; } = 0;
-            public SerpinskyTriangle(float x, float y, float size)
+            public SerpinskyCarpet(float x, float y, float size)
             {
                 this.x = x;
                 this.y = y;
                 this.size = size;
             }
-            public void DrawTriangle()
+            public void DrawSquare()
             {
-                graph.DrawLine(pen, x, y, x+size, y);
-                graph.DrawLine(pen, x, y, (2*x+size)/2.0f, (float)(y -size/2*Math.Sqrt(3)));
-                graph.DrawLine(pen, (2 * x + size) / 2.0f, (float)(y - size / 2 * Math.Sqrt(3)), x+size, y);
+                graph.DrawRectangle(pen, x, y, size, size);
                 mainPictureBox.Image = bmp;
             }
         }
-        class SerpinskyTriangleGroup
+        class SerpinskyCarpetGroup
         {
-            public SerpinskyTriangle[] group;
-            public SerpinskyTriangleGroup()
+            public SerpinskyCarpet[] group;
+            public SerpinskyCarpetGroup()
             {
-                group = new SerpinskyTriangle[0];
+                group = new SerpinskyCarpet[0];
             }
-            public static SerpinskyTriangleGroup operator +(SerpinskyTriangleGroup gr, SerpinskyTriangle rect)
+            public static SerpinskyCarpetGroup operator +(SerpinskyCarpetGroup gr, SerpinskyCarpet rect)
             {
                 Array.Resize(ref gr.group, gr.group.Length + 1);
                 gr.group[gr.group.Length - 1] = rect;
                 return gr;
             }
-            public static SerpinskyTriangleGroup operator -(SerpinskyTriangleGroup gr, SerpinskyTriangle rect)
+            public static SerpinskyCarpetGroup operator -(SerpinskyCarpetGroup gr, SerpinskyCarpet rect)
             {
                 bool isFind = false;
                 for (int i = 0; i < gr.group.Length; i++)
                 {
                     if (isFind)
                     {
-                        SerpinskyTriangle temp = gr.group[i];
+                        SerpinskyCarpet temp = gr.group[i];
                         gr.group[i] = gr.group[i - 1];
                         gr.group[i - 1] = temp;
                     }
@@ -112,19 +120,21 @@ namespace WindowsFormsApp1
         private void button1_Click(object sender, EventArgs e)
         {
             graph.Clear(Color.Transparent);
-            SerpinskyTriangle rect1 = new SerpinskyTriangle(10, 650, 700);
-            rect1.DrawTriangle();
+            SerpinskyCarpet carpet1 = new SerpinskyCarpet(10, 40, 700);
+            carpet1.DrawSquare();
+            SerpinskyCarpet carpet2 = new SerpinskyCarpet(carpet1.x+carpet1.size/3.0f, carpet1.y+carpet1.size / 3.0f, carpet1.size/3.0f);
+            carpet2.DrawSquare();
             iter = TextBoxToInt(mainTextBox);
-            foreach (SerpinskyTriangle i in group1.group)
+            foreach (SerpinskyCarpet i in group1.group)
             {
                 group1 -= i;
             }
-            foreach (SerpinskyTriangle i in group1.group)
+            foreach (SerpinskyCarpet i in group1.group)
             {
                 group1 -= i;
             }
-            group1 += rect1;
-            group1.group[0].DrawTriangle();
+            group1 += carpet2;
+            group1.group[0].DrawSquare();
             SerpinskyFractal(0);
         }
     }
