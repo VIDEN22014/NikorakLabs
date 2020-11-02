@@ -37,6 +37,10 @@ namespace WindowsFormsApp1
             {
                 AddRectangle(group1.group[0]);
             }
+            foreach (var i in group1.group)
+            {
+                i.DrawRectangle();
+            }
             CantorFractal(iteration + 1);
         }
         void AddRectangle(CantorRectangle rect)
@@ -46,8 +50,6 @@ namespace WindowsFormsApp1
             group1 += temp1;
             group1 += temp2;
             group1 -= rect;
-            group1.group[group1.group.Length - 1].DrawRectangle();
-            group1.group[group1.group.Length - 2].DrawRectangle();
         }
         class CantorRectangle
         {
