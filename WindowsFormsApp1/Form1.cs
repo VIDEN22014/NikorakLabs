@@ -16,7 +16,7 @@ namespace WindowsFormsApp1
         static Bitmap bmp = new Bitmap(10000, 10000);
         static Graphics graph = Graphics.FromImage(bmp);
         static Pen pen = new Pen(Color.Black);
-        static CantorRectangleGroup group1 = new CantorRectangleGroup();
+        static SerpinskyTriangleGroup group1 = new SerpinskyTriangleGroup();
         static TextBox mainTextBox = new TextBox();
         static int iter;
         public Form1()
@@ -30,65 +30,69 @@ namespace WindowsFormsApp1
             if (textBox.Text == "") { return 0; }
             return Convert.ToInt32(textBox.Text);
         }
-        void CantorFractal(int iteration)
+        void SerpinskyFractal(int iteration)
         {
             if (iteration == iter) { return; }
-            for (int i = 0; i < Math.Pow(2, iteration); i++)
+            for (int i = 0; i < Math.Pow(3, iteration); i++)
             {
                 AddRectangle(group1.group[0]);
             }
             foreach (var i in group1.group)
             {
-                i.DrawRectangle();
+                i.DrawTriangle();
             }
-            CantorFractal(iteration + 1);
+            SerpinskyFractal(iteration + 1);
         }
-        void AddRectangle(CantorRectangle rect)
+        void AddRectangle(SerpinskyTriangle triangle)
         {
-            CantorRectangle temp1 = new CantorRectangle(rect.x, rect.y + 20, rect.width / 3.0f);
-            CantorRectangle temp2 = new CantorRectangle(rect.x + 2 / 3.0f * rect.width, rect.y + 20, rect.width / 3.0f);
+            SerpinskyTriangle temp1 = new SerpinskyTriangle(triangle.x, triangle.y, triangle.size / 2.0f);
+            SerpinskyTriangle temp2 = new SerpinskyTriangle(triangle.x + triangle.size/2.0f, triangle.y, triangle.size / 2.0f);
+            SerpinskyTriangle temp3 = new SerpinskyTriangle(triangle.x + triangle.size / 4.0f, (float)(triangle.y - triangle.size / 4.0f*Math.Sqrt(3)), triangle.size / 2.0f);
             group1 += temp1;
             group1 += temp2;
-            group1 -= rect;
+            group1 += temp3;
+            group1 -= triangle;
         }
-        class CantorRectangle
+        class SerpinskyTriangle
         {
             public float x { get; } = 0;
             public float y { get; } = 0;
-            public float width { get; } = 0;
-            public CantorRectangle(float x, float y, float width)
+            public float size { get; } = 0;
+            public SerpinskyTriangle(float x, float y, float size)
             {
                 this.x = x;
                 this.y = y;
-                this.width = width;
+                this.size = size;
             }
-            public void DrawRectangle()
+            public void DrawTriangle()
             {
-                graph.DrawRectangle(pen, x + 10, y + 10, width, 10);
+                graph.DrawLine(pen, x, y, x+size, y);
+                graph.DrawLine(pen, x, y, (2*x+size)/2.0f, (float)(y -size/2*Math.Sqrt(3)));
+                graph.DrawLine(pen, (2 * x + size) / 2.0f, (float)(y - size / 2 * Math.Sqrt(3)), x+size, y);
                 mainPictureBox.Image = bmp;
             }
         }
-        class CantorRectangleGroup
+        class SerpinskyTriangleGroup
         {
-            public CantorRectangle[] group;
-            public CantorRectangleGroup()
+            public SerpinskyTriangle[] group;
+            public SerpinskyTriangleGroup()
             {
-                group = new CantorRectangle[0];
+                group = new SerpinskyTriangle[0];
             }
-            public static CantorRectangleGroup operator +(CantorRectangleGroup gr, CantorRectangle rect)
+            public static SerpinskyTriangleGroup operator +(SerpinskyTriangleGroup gr, SerpinskyTriangle rect)
             {
                 Array.Resize(ref gr.group, gr.group.Length + 1);
                 gr.group[gr.group.Length - 1] = rect;
                 return gr;
             }
-            public static CantorRectangleGroup operator -(CantorRectangleGroup gr, CantorRectangle rect)
+            public static SerpinskyTriangleGroup operator -(SerpinskyTriangleGroup gr, SerpinskyTriangle rect)
             {
                 bool isFind = false;
                 for (int i = 0; i < gr.group.Length; i++)
                 {
                     if (isFind)
                     {
-                        CantorRectangle temp = gr.group[i];
+                        SerpinskyTriangle temp = gr.group[i];
                         gr.group[i] = gr.group[i - 1];
                         gr.group[i - 1] = temp;
                     }
@@ -108,19 +112,20 @@ namespace WindowsFormsApp1
         private void button1_Click(object sender, EventArgs e)
         {
             graph.Clear(Color.Transparent);
-            CantorRectangle rect1 = new CantorRectangle(0, 30, 1200);
+            SerpinskyTriangle rect1 = new SerpinskyTriangle(10, 650, 700);
+            rect1.DrawTriangle();
             iter = TextBoxToInt(mainTextBox);
-            foreach (CantorRectangle i in group1.group)
+            foreach (SerpinskyTriangle i in group1.group)
             {
                 group1 -= i;
             }
-            foreach (CantorRectangle i in group1.group)
+            foreach (SerpinskyTriangle i in group1.group)
             {
                 group1 -= i;
             }
             group1 += rect1;
-            group1.group[0].DrawRectangle();
-            CantorFractal(0);
+            group1.group[0].DrawTriangle();
+            SerpinskyFractal(0);
         }
     }
 }
