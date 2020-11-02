@@ -16,7 +16,9 @@ namespace WindowsFormsApp1
         static Bitmap bmp = new Bitmap(10000, 10000);
         static Graphics graph = Graphics.FromImage(bmp);
         static Pen pen = new Pen(Color.Black);
-        static SerpinskyCarpetGroup group1 = new SerpinskyCarpetGroup();
+        static KohLineGroup group1 = new KohLineGroup();
+        static KohLineGroup group2 = new KohLineGroup();
+        static KohLineGroup group3 = new KohLineGroup();
         static TextBox mainTextBox = new TextBox();
         static int iter;
         public Form1()
@@ -37,14 +39,24 @@ namespace WindowsFormsApp1
                 {
                     i.Draw();
                 }
+                foreach (var i in group2.group)
+                {
+                    i.Draw();
+                }
+                foreach (var i in group3.group)
+                {
+                    i.Draw();
+                }
                 return; }
             for (int i = 0; i < Math.Pow(4, iteration); i++)
             {
-                AddLine(group1.group[0]);
+                AddLine(group1.group[0],1);
+                AddLine(group2.group[0],2);
+                AddLine(group3.group[0],3);
             }
             KohFractal(iteration + 1);
         }
-        void AddLine(KohLine line)
+        void AddLine(KohLine line,int a)
         {
             float alpha = (float)Math.Atan2(line.by - line.ay, line.bx - line.ax);
             float r = (float)Math.Sqrt((line.bx - line.ax) * (line.bx - line.ax) + (line.by - line.ay) * (line.by - line.ay));
@@ -52,11 +64,30 @@ namespace WindowsFormsApp1
             KohLine temp2 = new KohLine(temp1.bx , temp1.by, (float)(temp1.bx + r * Math.Cos(alpha - Math.PI / 3.0f) / 3.0f), (float)(temp1.by + r * Math.Sin(alpha - Math.PI / 3.0f) / 3.0f));
             KohLine temp3 = new KohLine(temp2.bx, temp2.by, (float)(line.ax + 2*r * Math.Cos(alpha) / 3.0f), (float)(line.ay + 2* r * Math.Sin(alpha) / 3.0f));
             KohLine temp4 = new KohLine(temp3.bx, temp3.by,line.bx,line.by);
-            group1 += temp1;
-            group1 += temp2;
-            group1 += temp3;
-            group1 += temp4;
-            group1 -= line;
+            if (a == 1)
+            {
+                group1 += temp1;
+                group1 += temp2;
+                group1 += temp3;
+                group1 += temp4;
+                group1 -= line;
+            }
+            if (a == 2)
+            {
+                group2 += temp1;
+                group2 += temp2;
+                group2 += temp3;
+                group2 += temp4;
+                group2 -= line;
+            }
+            if (a == 3)
+            {
+                group3 += temp1;
+                group3 += temp2;
+                group3 += temp3;
+                group3 += temp4;
+                group3 -= line;
+            }
         }
         class KohLine
         {
@@ -77,20 +108,20 @@ namespace WindowsFormsApp1
                 mainPictureBox.Image = bmp;
             }
         }
-        class SerpinskyCarpetGroup
+        class KohLineGroup
         {
             public KohLine[] group;
-            public SerpinskyCarpetGroup()
+            public KohLineGroup()
             {
                 group = new KohLine[0];
             }
-            public static SerpinskyCarpetGroup operator +(SerpinskyCarpetGroup gr, KohLine rect)
+            public static KohLineGroup operator +(KohLineGroup gr, KohLine rect)
             {
                 Array.Resize(ref gr.group, gr.group.Length + 1);
                 gr.group[gr.group.Length - 1] = rect;
                 return gr;
             }
-            public static SerpinskyCarpetGroup operator -(SerpinskyCarpetGroup gr, KohLine rect)
+            public static KohLineGroup operator -(KohLineGroup gr, KohLine rect)
             {
                 bool isFind = false;
                 for (int i = 0; i < gr.group.Length; i++)
@@ -117,7 +148,9 @@ namespace WindowsFormsApp1
         private void button1_Click(object sender, EventArgs e)
         {
             graph.Clear(Color.Transparent);
-            KohLine line1 = new KohLine(10, 500, 1300,500);
+            KohLine line1 = new KohLine(510, 500, 10,500);
+            KohLine line2 = new KohLine(10, 500, 260, (float)(500 - 250*Math.Sqrt(3)));
+            KohLine line3 = new KohLine(260, (float)(500 - 250 * Math.Sqrt(3)), 510, 500);
             iter = TextBoxToInt(mainTextBox);
             foreach (KohLine i in group1.group)
             {
@@ -127,7 +160,28 @@ namespace WindowsFormsApp1
             {
                 group1 -= i;
             }
+            //
+            foreach (KohLine i in group2.group)
+            {
+                group2 -= i;
+            }
+            foreach (KohLine i in group2.group)
+            {
+                group2 -= i;
+            }
+            //
+            foreach (KohLine i in group3.group)
+            {
+                group3 -= i;
+            }
+            foreach (KohLine i in group3.group)
+            {
+                group3 -= i;
+            }
+            //
             group1 += line1;
+            group2 += line2;
+            group3 += line3;
             KohFractal(0);
         }
     }
