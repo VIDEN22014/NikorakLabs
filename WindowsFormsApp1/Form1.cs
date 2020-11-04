@@ -46,7 +46,7 @@ namespace WindowsFormsApp1
         void AddLine(PifagorLine line)
         {
             PifagorLine temp1 = new PifagorLine((float)(line.x + (line.lenght * Math.Cos(line.angle))), (float)(line.y - (line.lenght * Math.Sin(line.angle))), line.lenght*0.7f, (float)(line.angle+Math.PI/4.0f));
-            PifagorLine temp2 = new PifagorLine((float)(line.x + (line.lenght * Math.Cos(line.angle))), (float)(line.y - (line.lenght * Math.Sin(line.angle))), line.lenght*0.7f, (float)(line.angle-Math.PI/6.0f));
+            PifagorLine temp2 = new PifagorLine((float)(line.x + (line.lenght * Math.Cos(line.angle))), (float)(line.y - (line.lenght * Math.Sin(line.angle))), line.lenght*0.7f, (float)(line.angle-Math.PI/4.0f));
             group1 += temp1;
             group1 += temp2;
             group1 -= line;
