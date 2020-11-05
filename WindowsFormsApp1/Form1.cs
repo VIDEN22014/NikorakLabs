@@ -16,7 +16,7 @@ namespace WindowsFormsApp1
         static Bitmap bmp = new Bitmap(10000, 10000);
         static Graphics graph = Graphics.FromImage(bmp);
         static Pen pen = new Pen(Color.Black);
-        static SerpinskyCarpetGroup group1 = new SerpinskyCarpetGroup();
+        static KohLineGroup group1 = new KohLineGroup();
         static TextBox mainTextBox = new TextBox();
         static int iter;
         public Form1()
@@ -77,20 +77,20 @@ namespace WindowsFormsApp1
                 mainPictureBox.Image = bmp;
             }
         }
-        class SerpinskyCarpetGroup
+        class KohLineGroup
         {
             public KohLine[] group;
-            public SerpinskyCarpetGroup()
+            public KohLineGroup()
             {
                 group = new KohLine[0];
             }
-            public static SerpinskyCarpetGroup operator +(SerpinskyCarpetGroup gr, KohLine rect)
+            public static KohLineGroup operator +(KohLineGroup gr, KohLine rect)
             {
                 Array.Resize(ref gr.group, gr.group.Length + 1);
                 gr.group[gr.group.Length - 1] = rect;
                 return gr;
             }
-            public static SerpinskyCarpetGroup operator -(SerpinskyCarpetGroup gr, KohLine rect)
+            public static KohLineGroup operator -(KohLineGroup gr, KohLine rect)
             {
                 bool isFind = false;
                 for (int i = 0; i < gr.group.Length; i++)
